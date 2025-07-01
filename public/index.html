@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevNotes - Developer Notes App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧑‍💻 DevNotes</h1>
+            <p>Your personal developer notebook</p>
+        </header>
+
+        <main>
+            <!-- API Test Section -->
+            <section class="test-section">
+                <h2>🧪 API Connection Test</h2>
+                <button id="testBtn">Test Server Connection</button>
+                <div id="testResult"></div>
+            </section>
+
+            <!-- Notes Section -->
+            <section class="notes-section">
+                <h2>📝 Your Dev Notes</h2>
+                
+                <div class="add-note">
+                    <input type="text" id="noteTitle" placeholder="Note title...">
+                    <textarea id="noteContent" placeholder="Write your dev note here..."></textarea>
+                    <select id="noteCategory">
+                        <option value="general">📋 General</option>
+                        <option value="javascript">🟨 JavaScript</option>
+                        <option value="nodejs">🟩 Node.js</option>
+                        <option value="mongodb">🍃 MongoDB</option>
+                        <option value="bug-fix">🐛 Bug Fix</option>
+                        <option value="learning">📚 Learning</option>
+                    </select>
+                    <label class="important-checkbox">
+                        <input type="checkbox" id="noteImportant">
+                        ⭐ Mark as Important
+                    </label>
+                    <button id="addNoteBtn">Add Note</button>
+                </div>
+
+                <div class="stats">
+                    <span id="noteCount">0 notes</span>
+                </div>
+
+                <div id="notesList" class="notes-list">
+                    <!-- Notes will appear here -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
