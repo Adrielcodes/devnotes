@@ -7,53 +7,127 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
+    <!-- Particles Background -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="animated-title">
+            <div class="title-line">
+                <span class="title-text">
+                    <span class="emoji">🧑‍💻</span>Dev
+                </span>
+            </div>
+            <div class="title-line">
+                <span class="title-text">Notes</span>
+            </div>
+            <div class="subtitle">Your premium developer notebook in the cloud</div>
+        </div>
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+    </div>
+
+    <div class="container" id="mainContent">
         <header>
             <h1>🧑‍💻 DevNotes</h1>
-            <p>Your personal developer notebook</p>
+            <p>Your premium developer notebook in the cloud</p>
         </header>
 
         <main>
             <!-- API Test Section -->
-            <section class="test-section">
-                <h2>🧪 API Connection Test</h2>
-                <button id="testBtn">Test Server Connection</button>
-                <div id="testResult"></div>
+            <section class="section">
+                <div class="section-header">
+                    <h2>🧪 API Connection Test</h2>
+                </div>
+                <div class="section-content">
+                    <button id="testBtn" class="btn">
+                        <span>🔗</span>
+                        Test Server Connection
+                    </button>
+                    <div id="testResult" class="test-result"></div>
+                </div>
             </section>
 
             <!-- Notes Section -->
-            <section class="notes-section">
-                <h2>📝 Your Dev Notes</h2>
-                
-                <div class="add-note">
-                    <input type="text" id="noteTitle" placeholder="Note title...">
-                    <textarea id="noteContent" placeholder="Write your dev note here..."></textarea>
-                    <select id="noteCategory">
-                        <option value="general">📋 General</option>
-                        <option value="javascript">🟨 JavaScript</option>
-                        <option value="nodejs">🟩 Node.js</option>
-                        <option value="mongodb">🍃 MongoDB</option>
-                        <option value="bug-fix">🐛 Bug Fix</option>
-                        <option value="learning">📚 Learning</option>
-                    </select>
-                    <label class="important-checkbox">
+            <section class="section">
+                <div class="section-header">
+                    <h2>📝 Create New Note</h2>
+                </div>
+                <div class="section-content">
+                    <div class="form-group">
+                        <label class="form-label" for="noteTitle">Note Title</label>
+                        <input type="text" id="noteTitle" class="form-input" placeholder="Enter your note title...">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="noteContent">Content</label>
+                        <textarea id="noteContent" class="form-textarea" placeholder="Write your dev note here..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="noteCategory">Category</label>
+                        <select id="noteCategory" class="form-select">
+                            <option value="general">📋 General</option>
+                            <option value="javascript">🟨 JavaScript</option>
+                            <option value="nodejs">🟩 Node.js</option>
+                            <option value="mongodb">🍃 MongoDB</option>
+                            <option value="bug-fix">🐛 Bug Fix</option>
+                            <option value="learning">📚 Learning</option>
+                        </select>
+                    </div>
+                    
+                    <label class="checkbox-wrapper">
                         <input type="checkbox" id="noteImportant">
-                        ⭐ Mark as Important
+                        <span>⭐ Mark as Important</span>
                     </label>
-                    <button id="addNoteBtn">Add Note</button>
+                    
+                    <button id="addNoteBtn" class="btn btn-success">
+                        <span>✨</span>
+                        Add Note
+                    </button>
                 </div>
+            </section>
 
-                <div class="stats">
-                    <span id="noteCount">0 notes</span>
+            <!-- Stats Section -->
+            <section class="section">
+                <div class="section-header">
+                    <h2>📊 Your Notes Overview</h2>
                 </div>
+                <div class="section-content">
+                    <div class="stats">
+                        <div class="stat-card">
+                            <div id="totalNotes" class="stat-number">0</div>
+                            <div class="stat-label">Total Notes</div>
+                        </div>
+                        <div class="stat-card">
+                            <div id="importantNotes" class="stat-number">0</div>
+                            <div class="stat-label">Important</div>
+                        </div>
+                        <div class="stat-card">
+                            <div id="recentNotes" class="stat-number">0</div>
+                            <div class="stat-label">This Week</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-                <div id="notesList" class="notes-list">
-                    <!-- Notes will appear here -->
+            <!-- Notes Display Section -->
+            <section class="section">
+                <div class="section-header">
+                    <h2>🗂️ Your Notes</h2>
+                </div>
+                <div class="section-content">
+                    <div id="notesList" class="notes-grid">
+                        <!-- Notes will appear here -->
+                    </div>
                 </div>
             </section>
         </main>
     </div>
+    </div>
 
+    <!-- Link to external JavaScript file -->
     <script src="script.js"></script>
 </body>
 </html>
