@@ -67,6 +67,196 @@ body {
     pointer-events: none;
 }
 
+/* Authentication Container */
+.auth-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9998;
+    opacity: 0;
+    transform: translateY(50px);
+    transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.auth-container.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.auth-container.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-50px);
+}
+
+.auth-box {
+    background: var(--bg-card);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--primary-gradient);
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.auth-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.auth-header p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.auth-form .form-group {
+    margin-bottom: 0;
+}
+
+.auth-form .form-input {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-secondary);
+    color: var(--text-primary);
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-md);
+    transition: all 0.3s ease;
+}
+
+.auth-form .form-input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    background: var(--bg-secondary);
+}
+
+.auth-form .btn {
+    margin-top: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    transition: all 0.3s ease;
+}
+
+.auth-form .btn-primary {
+    background: var(--primary-gradient);
+    border: none;
+    color: white;
+}
+
+.auth-form .btn-success {
+    background: var(--success-gradient);
+    border: none;
+    color: white;
+}
+
+.auth-switch {
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.auth-switch p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.auth-switch a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.auth-switch a:hover {
+    color: #764ba2;
+    text-decoration: underline;
+}
+
+.auth-message {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+.auth-message.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.auth-message.success {
+    background: rgba(67, 233, 123, 0.1);
+    border: 1px solid rgba(67, 233, 123, 0.3);
+    color: #43e97b;
+}
+
+.auth-message.error {
+    background: rgba(244, 67, 54, 0.1);
+    border: 1px solid rgba(244, 67, 54, 0.3);
+    color: #f44336;
+}
+
+/* Header Content */
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.btn-outline {
+    background: transparent;
+    border: 1px solid var(--border-primary);
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+}
+
+.btn-outline:hover {
+    background: var(--bg-glass);
+    border-color: #667eea;
+    color: #667eea;
+}
+
 /* Animated Title */
 .animated-title {
     font-size: clamp(3rem, 8vw, 8rem);
@@ -92,24 +282,6 @@ body {
     -webkit-text-fill-color: transparent;
     background-clip: text;
     position: relative;
-}
-
-.title-text::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-    transform: translateX(-100%);
-    animation: shimmer 2s ease-in-out infinite;
-}
-
-@keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    50% { transform: translateX(100%); }
-    100% { transform: translateX(100%); }
 }
 
 .title-text.animate {
@@ -251,7 +423,6 @@ header {
     backdrop-filter: blur(20px);
     position: relative;
     overflow: hidden;
-    animation: slideInDown 0.8s ease-out;
 }
 
 header::before {
@@ -662,16 +833,120 @@ header p {
 }
 
 .category-javascript { background: linear-gradient(135deg, #f7df1e, #ffeb3b); color: #000; }
+.category-typescript { background: linear-gradient(135deg, #3178c6, #4dabf7); }
+.category-python { background: linear-gradient(135deg, #3776ab, #ffde57); color: #000; }
+.category-java { background: linear-gradient(135deg, #007396, #ed8b00); }
+.category-csharp { background: linear-gradient(135deg, #68217a, #9b4f96); }
+.category-cpp { background: linear-gradient(135deg, #00599c, #004482); }
+.category-c { background: linear-gradient(135deg, #a8b9cc, #555555); }
+.category-go { background: linear-gradient(135deg, #00add8, #5ac9e3); }
+.category-rust { background: linear-gradient(135deg, #ce422b, #dea584); }
+.category-php { background: linear-gradient(135deg, #777bb4, #4f5d95); }
+.category-ruby { background: linear-gradient(135deg, #cc342d, #e74c3c); }
+.category-swift { background: linear-gradient(135deg, #ff6b35, #f7931e); }
+.category-kotlin { background: linear-gradient(135deg, #7f52ff, #b388ff); }
+.category-scala { background: linear-gradient(135deg, #dc322f, #e74c3c); }
+.category-dart { background: linear-gradient(135deg, #00b4ab, #00d4aa); }
+.category-r { background: linear-gradient(135deg, #276dc3, #4dabf7); }
+.category-matlab { background: linear-gradient(135deg, #0076a8, #00a0dc); }
+.category-perl { background: linear-gradient(135deg, #39457e, #4f5d95); }
+.category-bash { background: linear-gradient(135deg, #4eaa25, #6bcb77); }
+.category-powershell { background: linear-gradient(135deg, #012456, #0078d4); }
+
+/* Web Technologies */
+.category-html { background: linear-gradient(135deg, #e34f26, #f06529); }
+.category-css { background: linear-gradient(135deg, #1572b6, #33a9dc); }
+.category-react { background: linear-gradient(135deg, #61dafb, #00d8ff); color: #000; }
+.category-vue { background: linear-gradient(135deg, #4fc08d, #42b883); }
+.category-angular { background: linear-gradient(135deg, #dd0031, #c3002f); }
+.category-svelte { background: linear-gradient(135deg, #ff3e00, #ff5722); }
+.category-nextjs { background: linear-gradient(135deg, #000000, #111111); }
+.category-nuxtjs { background: linear-gradient(135deg, #00c58e, #42b883); }
+.category-gatsby { background: linear-gradient(135deg, #663399, #8a4baf); }
+.category-tailwind { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+.category-bootstrap { background: linear-gradient(135deg, #7952b3, #6f42c1); }
+.category-sass { background: linear-gradient(135deg, #cf649a, #cc6699); }
+.category-less { background: linear-gradient(135deg, #1d365d, #2d5aa0); }
+
+/* Backend & Databases */
 .category-nodejs { background: linear-gradient(135deg, #68a063, #81c784); }
+.category-express { background: linear-gradient(135deg, #000000, #333333); }
 .category-mongodb { background: linear-gradient(135deg, #4db33d, #66bb6a); }
+.category-mysql { background: linear-gradient(135deg, #00758f, #00a0dc); }
+.category-postgresql { background: linear-gradient(135deg, #336791, #4f5d95); }
+.category-redis { background: linear-gradient(135deg, #dc382d, #e74c3c); }
+.category-sqlite { background: linear-gradient(135deg, #003b57, #00a0dc); }
+.category-firebase { background: linear-gradient(135deg, #ffca28, #ffd54f); color: #000; }
+.category-supabase { background: linear-gradient(135deg, #3ecf8e, #4ade80); }
+.category-django { background: linear-gradient(135deg, #092e20, #0d9488); }
+.category-flask { background: linear-gradient(135deg, #000000, #333333); }
+.category-fastapi { background: linear-gradient(135deg, #059669, #10b981); }
+.category-spring { background: linear-gradient(135deg, #6db33f, #77dd77); }
+.category-laravel { background: linear-gradient(135deg, #ff2d20, #ff5722); }
+.category-rails { background: linear-gradient(135deg, #cc0000, #dc3545); }
+.category-aspnet { background: linear-gradient(135deg, #512bd4, #7c3aed); }
+.category-graphql { background: linear-gradient(135deg, #e10098, #f06292); }
+.category-rest { background: linear-gradient(135deg, #ff6b35, #ff8a65); }
+
+/* Mobile Development */
+.category-reactnative { background: linear-gradient(135deg, #61dafb, #00d8ff); color: #000; }
+.category-flutter { background: linear-gradient(135deg, #02569b, #027dfd); }
+.category-xamarin { background: linear-gradient(135deg, #3498db, #5dade2); }
+.category-ionic { background: linear-gradient(135deg, #3880ff, #5260ff); }
+.category-cordova { background: linear-gradient(135deg, #e8e8e8, #f8f9fa); color: #000; }
+
+/* DevOps & Tools */
+.category-docker { background: linear-gradient(135deg, #2496ed, #0db7ed); }
+.category-kubernetes { background: linear-gradient(135deg, #326ce5, #4f5d95); }
+.category-aws { background: linear-gradient(135deg, #ff9900, #ffb84d); color: #000; }
+.category-azure { background: linear-gradient(135deg, #0089d6, #00a0dc); }
+.category-gcp { background: linear-gradient(135deg, #4285f4, #5c9eff); }
+.category-git { background: linear-gradient(135deg, #f05032, #f56565); }
+.category-github { background: linear-gradient(135deg, #181717, #333333); }
+.category-gitlab { background: linear-gradient(135deg, #fc6d26, #ff8c42); }
+.category-jenkins { background: linear-gradient(135deg, #d33833, #e74c3c); }
+.category-terraform { background: linear-gradient(135deg, #7b42bc, #9c5dc7); }
+.category-ansible { background: linear-gradient(135deg, #ee0000, #ff4444); }
+.category-nginx { background: linear-gradient(135deg, #009639, #00a651); }
+.category-apache { background: linear-gradient(135deg, #d22128, #e74c3c); }
+
+/* Testing & Quality */
+.category-testing { background: linear-gradient(135deg, #4caf50, #66bb6a); }
+.category-jest { background: linear-gradient(135deg, #c21325, #e74c3c); }
+.category-cypress { background: linear-gradient(135deg, #17202c, #2c3e50); }
+.category-selenium { background: linear-gradient(135deg, #43b02a, #66bb6a); }
+.category-junit { background: linear-gradient(135deg, #25a162, #4caf50); }
+.category-pytest { background: linear-gradient(135deg, #0a9edc, #2196f3); }
+.category-eslint { background: linear-gradient(135deg, #4b32c3, #7c3aed); }
+.category-prettier { background: linear-gradient(135deg, #f7b93e, #ffd54f); color: #000; }
+.category-sonarqube { background: linear-gradient(135deg, #4e9b47, #66bb6a); }
+
+/* AI & Machine Learning */
+.category-ai { background: linear-gradient(135deg, #ff6b6b, #ff8a80); }
+.category-tensorflow { background: linear-gradient(135deg, #ff6f00, #ff9800); }
+.category-pytorch { background: linear-gradient(135deg, #ee4c2c, #ff5722); }
+.category-scikit { background: linear-gradient(135deg, #f7931e, #ff9800); }
+.category-pandas { background: linear-gradient(135deg, #130654, #1a237e); }
+.category-numpy { background: linear-gradient(135deg, #4dabf7, #2196f3); }
+.category-opencv { background: linear-gradient(135deg, #5c3ee8, #7c3aed); }
+.category-nlp { background: linear-gradient(135deg, #00bcd4, #26c6da); }
+
+/* Game Development */
+.category-unity { background: linear-gradient(135deg, #000000, #333333); }
+.category-unreal { background: linear-gradient(135deg, #0e1128, #1a237e); }
+.category-godot { background: linear-gradient(135deg, #478cbf, #5c9eff); }
+.category-phaser { background: linear-gradient(135deg, #ff6b35, #ff8a65); }
+
+/* Other Categories */
 .category-bug-fix { background: linear-gradient(135deg, #f44336, #ef5350); }
 .category-learning { background: linear-gradient(135deg, #9c27b0, #ba68c8); }
+.category-architecture { background: linear-gradient(135deg, #607d8b, #78909c); }
+.category-security { background: linear-gradient(135deg, #ff5722, #ff7043); }
+.category-performance { background: linear-gradient(135deg, #4caf50, #66bb6a); }
+.category-deployment { background: linear-gradient(135deg, #2196f3, #42a5f5); }
+.category-monitoring { background: linear-gradient(135deg, #ff9800, #ffb74d); }
+.category-documentation { background: linear-gradient(135deg, #795548, #8d6e63); }
 .category-general { background: var(--primary-gradient); }
-
-.note-date {
-    color: var(--text-muted);
-    font-size: 0.8rem;
-}
 
 /* Empty State */
 .empty-state {
@@ -751,4 +1026,9 @@ header p {
 
 ::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(var(--secondary-gradient));
+}
+
+.note-date {
+    color: var(--text-muted);
+    font-size: 0.8rem;
 }

@@ -1,6 +1,87 @@
 // DevNotes Frontend JavaScript
 
-// Create floating particles
+// ============================================================================
+// GLOBAL STATE
+// ============================================================================
+
+let currentUser = null;
+let isAuthenticated = false;
+let notes = [];
+
+// ============================================================================
+// DOM ELEMENTS
+// ============================================================================
+
+const noteTitle = document.getElementById('noteTitle');
+const noteContent = document.getElementById('noteContent');
+const noteCategory = document.getElementById('noteCategory');
+const noteImportant = document.getElementById('noteImportant');
+const addNoteBtn = document.getElementById('addNoteBtn');
+const notesList = document.getElementById('notesList');
+const totalNotes = document.getElementById('totalNotes');
+const importantNotes = document.getElementById('importantNotes');
+const recentNotes = document.getElementById('recentNotes');
+const logoutBtn = document.getElementById('logoutBtn');
+
+// Auth form elements
+const loginForm = document.getElementById('loginForm');
+const registerForm = document.getElementById('registerForm');
+const showRegisterLink = document.getElementById('showRegister');
+const showLoginLink = document.getElementById('showLogin');
+
+// ============================================================================
+// INITIALIZATION
+// ============================================================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    createParticles();
+    initLoadingAnimation();
+    setupEventListeners();
+    console.log('🚀 DevNotes enhanced frontend loaded!');
+});
+
+// ============================================================================
+// EVENT LISTENERS
+// ============================================================================
+
+function setupEventListeners() {
+    // Auth form events
+    loginForm.addEventListener('submit', handleLogin);
+    registerForm.addEventListener('submit', handleRegister);
+    showRegisterLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        switchAuthForm('register');
+    });
+    showLoginLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        switchAuthForm('login');
+    });
+    logoutBtn.addEventListener('click', handleLogout);
+
+    // Note form events
+    addNoteBtn.addEventListener('click', handleAddNote);
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', handleKeyboardShortcuts);
+    
+    // Auto-resize textarea
+    noteContent.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+    });
+
+    // Connection status
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    // Periodic refresh
+    setInterval(loadNotes, 30000);
+}
+
+// ============================================================================
+// LOADING ANIMATION
+// ============================================================================
+
 function createParticles() {
     const particlesContainer = document.getElementById('particles');
     for (let i = 0; i < 50; i++) {
@@ -13,7 +94,6 @@ function createParticles() {
     }
 }
 
-// Initialize loading animation
 function initLoadingAnimation() {
     const titleTexts = document.querySelectorAll('.title-text');
     const subtitle = document.querySelector('.subtitle');
@@ -38,13 +118,13 @@ function initLoadingAnimation() {
         subtitle.classList.add('animate');
     }, 1000);
 
-    // Hide loading screen and show main content
+    // Hide loading screen and check authentication
     setTimeout(() => {
         const loadingScreen = document.getElementById('loadingScreen');
-        const mainContent = document.getElementById('mainContent');
-        
         loadingScreen.classList.add('hidden');
-        mainContent.classList.add('show');
+        
+        // Check authentication status
+        checkAuthStatus();
         
         // Remove loading screen from DOM after transition
         setTimeout(() => {
@@ -53,64 +133,223 @@ function initLoadingAnimation() {
     }, 3500);
 }
 
-// DOM Elements
-const testBtn = document.getElementById('testBtn');
-const testResult = document.getElementById('testResult');
-const noteTitle = document.getElementById('noteTitle');
-const noteContent = document.getElementById('noteContent');
-const noteCategory = document.getElementById('noteCategory');
-const noteImportant = document.getElementById('noteImportant');
-const addNoteBtn = document.getElementById('addNoteBtn');
-const notesList = document.getElementById('notesList');
-const totalNotes = document.getElementById('totalNotes');
-const importantNotes = document.getElementById('importantNotes');
-const recentNotes = document.getElementById('recentNotes');
+// ============================================================================
+// AUTHENTICATION
+// ============================================================================
 
-// Debug: Check if all elements are found
-console.log('🔍 Debug - DOM Elements found:');
-console.log('testBtn:', testBtn);
-console.log('noteTitle:', noteTitle);
-console.log('noteContent:', noteContent);
-console.log('noteCategory:', noteCategory);
-console.log('noteImportant:', noteImportant);
-console.log('addNoteBtn:', addNoteBtn);
-console.log('notesList:', notesList);
-
-// Store notes (will be loaded from MongoDB)
-let notes = [];
-
-// Test API connection
-testBtn.addEventListener('click', async () => {
-    console.log('🧪 Test button clicked!');
-    testResult.innerHTML = '<span class="spinner"></span> Testing connection...';
-    testResult.className = 'test-result loading';
-    
+async function checkAuthStatus() {
     try {
-        const response = await fetch('/api/test');
+        const response = await fetch('/api/auth/status', {
+            credentials: 'include'
+        });
         const data = await response.json();
         
-        testResult.innerHTML = `
-            ✅ <strong>Success!</strong><br>
-            Message: ${data.message}<br>
-            Database: ${data.database}<br>
-            Time: ${data.timestamp}
-        `;
-        testResult.className = 'test-result success';
-        
+        if (data.success && data.authenticated) {
+            currentUser = data.user;
+            isAuthenticated = true;
+            showMainContent();
+        } else {
+            showAuthForm();
+        }
     } catch (error) {
-        testResult.innerHTML = `
-            ❌ <strong>Error:</strong><br>
-            ${error.message}
-        `;
-        testResult.className = 'test-result error';
+        console.error('Auth status check error:', error);
+        showAuthForm();
     }
-});
+}
 
-// Load notes from database
+function showAuthForm() {
+    const authContainer = document.getElementById('authContainer');
+    authContainer.classList.add('show');
+}
+
+function showMainContent() {
+    const authContainer = document.getElementById('authContainer');
+    const mainContent = document.getElementById('mainContent');
+    const userDisplay = document.getElementById('userDisplay');
+    
+    // Update user display
+    if (currentUser && currentUser.username) {
+        userDisplay.textContent = currentUser.username;
+    }
+    
+    // Hide auth form and show main content
+    authContainer.classList.add('hidden');
+    mainContent.style.display = 'block';
+    mainContent.classList.add('show');
+    
+    // Load notes after authentication
+    loadNotes();
+}
+
+async function handleLogin(event) {
+    event.preventDefault();
+    
+    const username = document.getElementById('loginUsername').value;
+    const password = document.getElementById('loginPassword').value;
+    const rememberMe = document.getElementById('rememberMe').checked;
+    
+    try {
+        const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                username,
+                password,
+                rememberMe
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            currentUser = data.user;
+            isAuthenticated = true;
+            showAuthMessage('Login successful!', 'success');
+            setTimeout(() => {
+                showMainContent();
+            }, 1000);
+        } else {
+            showAuthMessage(data.message, 'error');
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        showAuthMessage('Login failed. Please try again.', 'error');
+    }
+}
+
+async function handleRegister(event) {
+    event.preventDefault();
+    
+    const username = document.getElementById('registerUsername').value;
+    const password = document.getElementById('registerPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    
+    if (password !== confirmPassword) {
+        showAuthMessage('Passwords do not match!', 'error');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                username,
+                password
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            currentUser = data.user;
+            isAuthenticated = true;
+            showAuthMessage('Account created successfully!', 'success');
+            setTimeout(() => {
+                showMainContent();
+            }, 1000);
+        } else {
+            showAuthMessage(data.message, 'error');
+        }
+    } catch (error) {
+        console.error('Registration error:', error);
+        showAuthMessage('Registration failed. Please try again.', 'error');
+    }
+}
+
+async function handleLogout() {
+    try {
+        const response = await fetch('/api/auth/logout', {
+            method: 'POST',
+            credentials: 'include'
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            currentUser = null;
+            isAuthenticated = false;
+            
+            // Reset forms
+            document.getElementById('loginForm').reset();
+            document.getElementById('registerForm').reset();
+            
+            // Show auth form
+            const authContainer = document.getElementById('authContainer');
+            const mainContent = document.getElementById('mainContent');
+            
+            mainContent.classList.remove('show');
+            mainContent.style.display = 'none';
+            authContainer.classList.remove('hidden');
+            authContainer.classList.add('show');
+            
+            // Clear notes
+            notes = [];
+            renderNotes();
+            updateStats();
+        }
+    } catch (error) {
+        console.error('Logout error:', error);
+    }
+}
+
+function showAuthMessage(message, type) {
+    const authMessage = document.getElementById('authMessage');
+    authMessage.textContent = message;
+    authMessage.className = `auth-message ${type} show`;
+    
+    setTimeout(() => {
+        authMessage.classList.remove('show');
+    }, 3000);
+}
+
+function switchAuthForm(formType) {
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const authMessage = document.getElementById('authMessage');
+    
+    // Clear any existing messages
+    authMessage.classList.remove('show');
+    
+    if (formType === 'register') {
+        loginForm.style.display = 'none';
+        registerForm.style.display = 'flex';
+    } else {
+        registerForm.style.display = 'none';
+        loginForm.style.display = 'flex';
+    }
+}
+
+// ============================================================================
+// NOTES MANAGEMENT
+// ============================================================================
+
 async function loadNotes() {
+    if (!isAuthenticated) {
+        console.log('❌ User not authenticated, cannot load notes');
+        return;
+    }
+    
     console.log('📝 Loading notes...');
     try {
-        const response = await fetch('/api/notes');
+        const response = await fetch('/api/notes', {
+            credentials: 'include'
+        });
+        
+        if (response.status === 401) {
+            // User not authenticated, redirect to login
+            isAuthenticated = false;
+            currentUser = null;
+            showAuthForm();
+            return;
+        }
+        
         const data = await response.json();
         
         if (data.success) {
@@ -124,18 +363,15 @@ async function loadNotes() {
     }
 }
 
-// Add new note
-addNoteBtn.addEventListener('click', async () => {
-    console.log('✨ Add note button clicked!');
-    console.log('📝 Form values:');
-    console.log('- Title:', noteTitle.value);
-    console.log('- Content:', noteContent.value);
-    console.log('- Category:', noteCategory.value);
-    console.log('- Important:', noteImportant.checked);
+async function handleAddNote() {
+    if (!isAuthenticated) {
+        alert('Please log in to add notes!');
+        return;
+    }
     
     const title = noteTitle.value.trim();
     const content = noteContent.value.trim();
-    const category = noteCategory.value;
+    const category = noteCategory.value.trim();
     const isImportant = noteImportant.checked;
     
     if (!title || !content) {
@@ -148,28 +384,35 @@ addNoteBtn.addEventListener('click', async () => {
     addNoteBtn.innerHTML = '<span class="spinner"></span> Saving...';
     
     try {
-        console.log('📤 Sending note to server...');
         const response = await fetch('/api/notes', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
+            credentials: 'include',
             body: JSON.stringify({
                 title: title,
                 content: content,
-                category: category,
+                category: category || 'general',
                 isImportant: isImportant
             })
         });
         
+        if (response.status === 401) {
+            // User not authenticated, redirect to login
+            isAuthenticated = false;
+            currentUser = null;
+            showAuthForm();
+            return;
+        }
+        
         const data = await response.json();
-        console.log('📥 Server response:', data);
         
         if (data.success) {
             // Clear form
             noteTitle.value = '';
             noteContent.value = '';
-            noteCategory.value = 'general';
+            noteCategory.value = '';
             noteImportant.checked = false;
             
             // Reload notes from database
@@ -191,17 +434,22 @@ addNoteBtn.addEventListener('click', async () => {
         // Re-enable button
         addNoteBtn.disabled = false;
     }
-});
+}
 
-// Delete note
 async function deleteNote(noteId) {
+    if (!isAuthenticated) {
+        alert('Please log in to delete notes!');
+        return;
+    }
+    
     if (!confirm('Are you sure you want to delete this note?')) {
         return;
     }
     
     try {
         const response = await fetch(`/api/notes/${noteId}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            credentials: 'include'
         });
         
         const data = await response.json();
@@ -217,40 +465,6 @@ async function deleteNote(noteId) {
     }
 }
 
-// Update statistics
-function updateStats() {
-    const total = notes.length;
-    const important = notes.filter(note => note.isImportant).length;
-    const oneWeekAgo = new Date();
-    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-    const recent = notes.filter(note => new Date(note.createdAt) > oneWeekAgo).length;
-
-    animateCounter(totalNotes, total);
-    animateCounter(importantNotes, important);
-    animateCounter(recentNotes, recent);
-}
-
-// Animate counter
-function animateCounter(element, target) {
-    const start = parseInt(element.textContent) || 0;
-    const duration = 1000;
-    const startTime = performance.now();
-
-    function update(currentTime) {
-        const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        const current = Math.round(start + (target - start) * progress);
-        element.textContent = current;
-
-        if (progress < 1) {
-            requestAnimationFrame(update);
-        }
-    }
-
-    requestAnimationFrame(update);
-}
-
-// Render notes to the page
 function renderNotes() {
     if (notes.length === 0) {
         notesList.innerHTML = `
@@ -281,33 +495,175 @@ function renderNotes() {
                     ${getCategoryIcon(note.category)} ${note.category}
                 </span>
                 <span class="note-date">
-                    ${formatDate(note.createdAt)}
+                    ${formatDate(note.created_at || note.createdAt)}
                 </span>
             </div>
         </div>
     `).join('');
 }
 
-// Get category icon
+function updateStats() {
+    const total = notes.length;
+    const important = notes.filter(note => note.isImportant).length;
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    const recent = notes.filter(note => new Date(note.created_at || note.createdAt) > oneWeekAgo).length;
+
+    animateCounter(totalNotes, total);
+    animateCounter(importantNotes, important);
+    animateCounter(recentNotes, recent);
+}
+
+function animateCounter(element, target) {
+    const start = parseInt(element.textContent) || 0;
+    const duration = 1000;
+    const startTime = performance.now();
+
+    function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const current = Math.round(start + (target - start) * progress);
+        element.textContent = current;
+
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        }
+    }
+
+    requestAnimationFrame(update);
+}
+
+// ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
+
 function getCategoryIcon(category) {
     const icons = {
         'general': '📋',
         'javascript': '🟨',
+        'typescript': '🔷',
+        'python': '🐍',
+        'java': '☕',
+        'csharp': '💜',
+        'cpp': '🔵',
+        'c': '🔵',
+        'go': '🔵',
+        'rust': '🦀',
+        'php': '🐘',
+        'ruby': '💎',
+        'swift': '🍎',
+        'kotlin': '🟠',
+        'scala': '🔴',
+        'dart': '🔵',
+        'r': '🔵',
+        'matlab': '🔵',
+        'perl': '🐪',
+        'bash': '💻',
+        'powershell': '🔵',
+        'html': '🌐',
+        'css': '🎨',
+        'react': '⚛️',
+        'vue': '💚',
+        'angular': '🔴',
+        'svelte': '🟠',
+        'nextjs': '⚫',
+        'nuxtjs': '💚',
+        'gatsby': '🟣',
+        'tailwind': '🎨',
+        'bootstrap': '🎨',
+        'sass': '🎨',
+        'less': '🎨',
         'nodejs': '🟩',
+        'express': '🟩',
         'mongodb': '🍃',
+        'mysql': '🐬',
+        'postgresql': '🐘',
+        'redis': '🔴',
+        'sqlite': '💎',
+        'firebase': '🔥',
+        'supabase': '🟢',
+        'django': '🟢',
+        'flask': '🟢',
+        'fastapi': '🟢',
+        'spring': '🟢',
+        'laravel': '🟠',
+        'rails': '💎',
+        'aspnet': '💜',
+        'graphql': '🟣',
+        'rest': '🌐',
+        'reactnative': '⚛️',
+        'flutter': '🦋',
+        'xamarin': '💜',
+        'ionic': '💙',
+        'cordova': '📱',
+        'docker': '🐳',
+        'kubernetes': '☸️',
+        'aws': '☁️',
+        'azure': '☁️',
+        'gcp': '☁️',
+        'git': '📝',
+        'github': '🐙',
+        'gitlab': '🦊',
+        'jenkins': '🔴',
+        'terraform': '🏗️',
+        'ansible': '🔵',
+        'nginx': '🟢',
+        'apache': '🟢',
+        'testing': '🧪',
+        'jest': '🟨',
+        'cypress': '🟢',
+        'selenium': '🟢',
+        'junit': '🟢',
+        'pytest': '🟢',
+        'eslint': '🟨',
+        'prettier': '🎨',
+        'sonarqube': '🔵',
+        'ai': '🤖',
+        'tensorflow': '🟠',
+        'pytorch': '🟠',
+        'scikit': '🟢',
+        'pandas': '🐼',
+        'numpy': '🔵',
+        'opencv': '🔵',
+        'nlp': '📝',
+        'unity': '🎮',
+        'unreal': '🎮',
+        'godot': '🎮',
+        'phaser': '🎮',
         'bug-fix': '🐛',
-        'learning': '📚'
+        'learning': '📚',
+        'architecture': '🏗️',
+        'security': '🔒',
+        'performance': '⚡',
+        'deployment': '🚀',
+        'monitoring': '📊',
+        'documentation': '📖'
     };
     return icons[category] || '📋';
 }
 
-// Format date
-function formatDate(dateString) {
+function formatDate(dateInput) {
+    let dateString = dateInput;
+    // If passed an object, try both created_at and createdAt
+    if (typeof dateInput === 'object' && dateInput !== null) {
+        dateString = dateInput.created_at || dateInput.createdAt || '';
+    }
+    if (!dateString) return '';
+    
+    // Parse the date and ensure it's treated as UTC if it has timezone info
     const date = new Date(dateString);
+    if (isNaN(date.getTime())) return '';
+    
+    // Get current date in the same timezone context
     const now = new Date();
-    const diffTime = Math.abs(now - date);
+    
+    // Calculate difference in days, ignoring time of day
+    const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const nowOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const diffTime = nowOnly.getTime() - dateOnly.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
+    if (diffDays === 0) return 'Today';
     if (diffDays === 1) return 'Yesterday';
     if (diffDays < 7) return `${diffDays} days ago`;
     if (diffDays < 30) return `${Math.ceil(diffDays / 7)} weeks ago`;
@@ -319,15 +675,17 @@ function formatDate(dateString) {
     });
 }
 
-// Utility function to prevent XSS attacks
 function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
 }
 
-// Add keyboard shortcuts
-document.addEventListener('keydown', (e) => {
+// ============================================================================
+// KEYBOARD SHORTCUTS
+// ============================================================================
+
+function handleKeyboardShortcuts(e) {
     // Ctrl/Cmd + Enter to save note
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
         e.preventDefault();
@@ -338,46 +696,27 @@ document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         noteTitle.value = '';
         noteContent.value = '';
-        noteCategory.value = 'general';
+        noteCategory.value = '';
         noteImportant.checked = false;
     }
-});
-
-// Auto-resize textarea
-noteContent.addEventListener('input', function() {
-    this.style.height = 'auto';
-    this.style.height = (this.scrollHeight) + 'px';
-});
-
-// Add smooth scrolling to new notes
-function scrollToTop() {
-    window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-    });
 }
 
-// Initialize the page
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialize loading animation and particles
-    createParticles();
-    initLoadingAnimation();
-    
-    // Load notes after loading animation completes
-    setTimeout(() => {
-        loadNotes(); // Load notes from database on page load
-    }, 4000);
-    
-    console.log('🚀 DevNotes enhanced frontend loaded!');
-});
+// ============================================================================
+// CONNECTION STATUS
+// ============================================================================
 
-// Add periodic refresh (every 30 seconds)
-setInterval(() => {
-    loadNotes();
-}, 30000);
-
-// Add connection status indicator
 let isOnline = navigator.onLine;
+
+function handleOnline() {
+    isOnline = true;
+    updateConnectionStatus();
+    loadNotes(); // Refresh notes when coming back online
+}
+
+function handleOffline() {
+    isOnline = false;
+    updateConnectionStatus();
+}
 
 function updateConnectionStatus() {
     const header = document.querySelector('header p');
@@ -389,67 +728,3 @@ function updateConnectionStatus() {
         header.style.color = '';
     }
 }
-
-window.addEventListener('online', () => {
-    isOnline = true;
-    updateConnectionStatus();
-    loadNotes(); // Refresh notes when coming back online
-});
-
-window.addEventListener('offline', () => {
-    isOnline = false;
-    updateConnectionStatus();
-});
-
-// Add search functionality
-function addSearchFeature() {
-    const searchHTML = `
-        <div class="section" style="animation-delay: 0.05s;">
-            <div class="section-header">
-                <h2>🔍 Search Notes</h2>
-            </div>
-            <div class="section-content">
-                <input type="text" id="searchInput" class="form-input" placeholder="Search your notes...">
-            </div>
-        </div>
-    `;
-    
-    // Insert search section before the notes display
-    const notesSection = document.querySelector('.section:last-child');
-    notesSection.insertAdjacentHTML('beforebegin', searchHTML);
-    
-    // Add search functionality
-    const searchInput = document.getElementById('searchInput');
-    let searchTimeout;
-    
-    searchInput.addEventListener('input', (e) => {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => {
-            const query = e.target.value.toLowerCase().trim();
-            filterNotes(query);
-        }, 300);
-    });
-}
-
-function filterNotes(query) {
-    if (!query) {
-        renderNotes();
-        return;
-    }
-    
-    const filteredNotes = notes.filter(note => 
-        note.title.toLowerCase().includes(query) ||
-        note.content.toLowerCase().includes(query) ||
-        note.category.toLowerCase().includes(query) ||
-        note.tags?.some(tag => tag.toLowerCase().includes(query))
-    );
-    
-    // Temporarily replace notes array for rendering
-    const originalNotes = notes;
-    notes = filteredNotes;
-    renderNotes();
-    notes = originalNotes;
-}
-
-// Initialize search feature after a delay
-setTimeout(addSearchFeature, 5000);

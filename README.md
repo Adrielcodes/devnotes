@@ -1,45 +1,326 @@
-**Edit a file, create a new file, and clone from Bitbucket in under 2 minutes**
+# 🧑‍💻 DevNotes
 
-When you're done, you can delete the content in this README and update the file with details for others getting started with your repository.
+A modern, secure developer notebook application with MySQL backend and beautiful UI.
 
-*We recommend that you open this README in another tab as you perform the tasks below. You can [watch our video](https://youtu.be/0ocf7u76WSo) for a full demo of all the steps in this tutorial. Open the video in a new tab to avoid leaving Bitbucket.*
+## ✨ Features
+
+- **🔐 Secure Authentication**: User registration and login with password hashing
+- **💾 MySQL Database**: Robust data storage with user-specific notes
+- **🎨 Beautiful UI**: Modern, responsive design with smooth animations
+- **📝 Rich Note Taking**: Create, edit, and organize developer notes
+- **🏷️ Custom Categories**: Add any category you want (JavaScript, React, DevOps, etc.)
+- **⭐ Important Notes**: Mark notes as important for quick access
+- **🔒 Remember Me**: Stay logged in between sessions
+- **📊 Statistics**: View your note statistics and overview
+- **⌨️ Keyboard Shortcuts**: Quick actions with keyboard shortcuts
+- **📱 Responsive Design**: Works on desktop, tablet, and mobile
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Node.js (v14 or higher)
+- MySQL (v8.0 or higher)
+- npm or yarn
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <your-repo-url>
+   cd devnotes
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Set up MySQL**
+   ```bash
+   # Start MySQL service
+   brew services start mysql
+   
+   # Create database
+   mysql -u root -e "CREATE DATABASE IF NOT EXISTS devnotes;"
+   ```
+
+4. **Configure environment variables**
+   ```bash
+   # Copy .env.example to .env and update values
+   cp .env.example .env
+   ```
+
+5. **Start the application**
+   ```bash
+   npm start
+   ```
+
+6. **Open your browser**
+   Navigate to `http://localhost:3000`
+
+## 📁 Project Structure
+
+```
+devnotes/
+├── config/
+│   └── mysql.js          # Database configuration
+├── middleware/
+│   └── auth.js           # Authentication middleware
+├── routes/
+│   └── auth.js           # Authentication routes
+├── public/
+│   ├── index.html        # Main HTML file
+│   ├── style.css         # Styles and animations
+│   └── script.js         # Frontend JavaScript
+├── server.js             # Express server
+├── package.json          # Dependencies and scripts
+└── README.md            # This file
+```
+
+## 🔧 Configuration
+
+### Environment Variables
+
+Create a `.env` file in the root directory:
+
+```env
+# Database Configuration
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=
+DB_NAME=devnotes
+
+# Session Configuration
+SESSION_SECRET=your-secret-key-here
+
+# Server Configuration
+PORT=3000
+NODE_ENV=development
+```
+
+### Database Schema
+
+The application automatically creates these tables:
+
+- **users**: User accounts with hashed passwords
+- **notes**: User notes with categories and metadata
+- **sessions**: Remember me functionality
+
+## 📚 API Documentation
+
+### Authentication Endpoints
+
+#### POST `/api/auth/register`
+Register a new user account.
+
+**Request Body:**
+```json
+{
+  "username": "developer",
+  "password": "securepassword123"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "User registered successfully",
+  "user": {
+    "id": 1,
+    "username": "developer"
+  }
+}
+```
+
+#### POST `/api/auth/login`
+Login with existing credentials.
+
+**Request Body:**
+```json
+{
+  "username": "developer",
+  "password": "securepassword123",
+  "rememberMe": true
+}
+```
+
+#### POST `/api/auth/logout`
+Logout and clear session.
+
+#### GET `/api/auth/status`
+Check authentication status.
+
+### Notes Endpoints
+
+#### GET `/api/notes`
+Get all notes for the authenticated user.
+
+**Response:**
+```json
+{
+  "success": true,
+  "notes": [
+    {
+      "id": 1,
+      "user_id": 1,
+      "title": "React Hooks",
+      "content": "useState and useEffect examples...",
+      "category": "react",
+      "is_important": true,
+      "created_at": "2025-07-03T21:30:34.000Z"
+    }
+  ]
+}
+```
+
+#### POST `/api/notes`
+Create a new note.
+
+**Request Body:**
+```json
+{
+  "title": "Note Title",
+  "content": "Note content...",
+  "category": "javascript",
+  "isImportant": false
+}
+```
+
+#### DELETE `/api/notes/:id`
+Delete a specific note.
+
+## 🎨 Frontend Features
+
+### Keyboard Shortcuts
+
+- **Ctrl/Cmd + Enter**: Save note
+- **Escape**: Clear form
+
+### Categories
+
+The application supports any custom category. Popular examples:
+- Programming Languages: JavaScript, Python, Java, C#, etc.
+- Frameworks: React, Vue, Angular, Django, Flask, etc.
+- Databases: MySQL, PostgreSQL, MongoDB, Redis, etc.
+- DevOps: Docker, Kubernetes, AWS, Azure, etc.
+- Tools: Git, VS Code, Terminal, etc.
+
+### UI Components
+
+- **Loading Animation**: Beautiful intro with particles
+- **Authentication Forms**: Clean login/register interface
+- **Note Cards**: Responsive cards with category colors
+- **Statistics**: Real-time note statistics
+- **Responsive Design**: Works on all screen sizes
+
+## 🔒 Security Features
+
+- **Password Hashing**: bcrypt with 12 salt rounds
+- **Session Management**: Secure session handling
+- **SQL Injection Protection**: Parameterized queries
+- **XSS Protection**: Input sanitization
+- **CSRF Protection**: SameSite cookies
+- **Input Validation**: Server-side validation
+
+## 🛠️ Development
+
+### Running in Development Mode
+
+```bash
+npm run dev
+```
+
+### Database Management
+
+```bash
+# Connect to MySQL
+mysql -u root devnotes
+
+# View tables
+SHOW TABLES;
+
+# View users
+SELECT * FROM users;
+
+# View notes
+SELECT * FROM notes;
+```
+
+### File Structure Guidelines
+
+- **Backend**: MVC pattern with clear separation
+- **Frontend**: Modular JavaScript with clear sections
+- **Styling**: CSS custom properties for theming
+- **Database**: Normalized schema with foreign keys
+
+## 🚀 Deployment
+
+### Production Setup
+
+1. **Environment Variables**
+   ```env
+   NODE_ENV=production
+   SESSION_SECRET=your-production-secret
+   DB_PASSWORD=your-production-password
+   ```
+
+2. **Database**
+   - Use a production MySQL instance
+   - Set up proper backups
+   - Configure connection pooling
+
+3. **Server**
+   - Use a process manager (PM2)
+   - Set up reverse proxy (Nginx)
+   - Configure SSL certificates
+
+### Example PM2 Configuration
+
+```json
+{
+  "name": "devnotes",
+  "script": "server.js",
+  "instances": "max",
+  "env": {
+    "NODE_ENV": "production"
+  }
+}
+```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the ISC License.
+
+## 🆘 Support
+
+If you encounter any issues:
+
+1. Check the console for error messages
+2. Verify MySQL is running
+3. Check environment variables
+4. Ensure all dependencies are installed
+
+## 🎯 Roadmap
+
+- [ ] Note search functionality
+- [ ] Note tags and filtering
+- [ ] Note sharing between users
+- [ ] Markdown support
+- [ ] File attachments
+- [ ] Note templates
+- [ ] Export functionality
+- [ ] Dark/light theme toggle
 
 ---
 
-## Edit a file
-
-You’ll start by editing this README file to learn how to edit a file in Bitbucket.
-
-1. Click **Source** on the left side.
-2. Click the README.md link from the list of files.
-3. Click the **Edit** button.
-4. Delete the following text: *Delete this line to make a change to the README from Bitbucket.*
-5. After making your change, click **Commit** and then **Commit** again in the dialog. The commit page will open and you’ll see the change you just made.
-6. Go back to the **Source** page.
-
----
-
-## Create a file
-
-Next, you’ll add a new file to this repository.
-
-1. Click the **New file** button at the top of the **Source** page.
-2. Give the file a filename of **contributors.txt**.
-3. Enter your name in the empty file space.
-4. Click **Commit** and then **Commit** again in the dialog.
-5. Go back to the **Source** page.
-
-Before you move on, go ahead and explore the repository. You've already seen the **Source** page, but check out the **Commits**, **Branches**, and **Settings** pages.
-
----
-
-## Clone a repository
-
-Use these steps to clone from SourceTree, our client for using the repository command-line free. Cloning allows you to work on your files locally. If you don't yet have SourceTree, [download and install first](https://www.sourcetreeapp.com/). If you prefer to clone from the command line, see [Clone a repository](https://confluence.atlassian.com/x/4whODQ).
-
-1. You’ll see the clone button under the **Source** heading. Click that button.
-2. Now click **Check out in SourceTree**. You may need to create a SourceTree account or log in.
-3. When you see the **Clone New** dialog in SourceTree, update the destination path and name if you’d like to and then click **Clone**.
-4. Open the directory you just created to see your repository’s files.
-
-Now that you're more familiar with your Bitbucket repository, go ahead and add a new file locally. You can [push your change back to Bitbucket with SourceTree](https://confluence.atlassian.com/x/iqyBMg), or you can [add, commit,](https://confluence.atlassian.com/x/8QhODQ) and [push from the command line](https://confluence.atlassian.com/x/NQ0zDQ).
+**Built with ❤️ for developers**

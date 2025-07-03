@@ -28,27 +28,87 @@
         </div>
     </div>
 
-    <div class="container" id="mainContent">
+    <!-- Authentication Container -->
+    <div class="auth-container" id="authContainer">
+        <div class="auth-box">
+            <div class="auth-header">
+                <h1>🧑‍💻 DevNotes</h1>
+                <p>Sign in to your developer notebook</p>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label class="form-label" for="loginUsername">Username</label>
+                    <input type="text" id="loginUsername" class="form-input" placeholder="Enter your username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" class="form-input" placeholder="Enter your password" required>
+                </div>
+                
+                <label class="checkbox-wrapper">
+                    <input type="checkbox" id="rememberMe">
+                    <span>🔒 Remember Me</span>
+                </label>
+                
+                <button type="submit" class="btn btn-primary">
+                    <span>🔑</span>
+                    Sign In
+                </button>
+                
+                <div class="auth-switch">
+                    <p>Don't have an account? <a href="#" id="showRegister">Create one</a></p>
+                </div>
+            </form>
+
+            <!-- Register Form -->
+            <form id="registerForm" class="auth-form" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label" for="registerUsername">Username</label>
+                    <input type="text" id="registerUsername" class="form-input" placeholder="Choose a username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="registerPassword">Password</label>
+                    <input type="password" id="registerPassword" class="form-input" placeholder="Choose a password" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" class="form-input" placeholder="Confirm your password" required>
+                </div>
+                
+                <button type="submit" class="btn btn-success">
+                    <span>✨</span>
+                    Create Account
+                </button>
+                
+                <div class="auth-switch">
+                    <p>Already have an account? <a href="#" id="showLogin">Sign in</a></p>
+                </div>
+            </form>
+
+            <div id="authMessage" class="auth-message"></div>
+        </div>
+    </div>
+
+    <div class="container" id="mainContent" style="display: none;">
         <header>
-            <h1>🧑‍💻 DevNotes</h1>
-            <p>Your premium developer notebook in the cloud</p>
+            <div class="header-content">
+                <div>
+                    <h1>🧑‍💻 DevNotes</h1>
+                    <p>Welcome back, <span id="userDisplay">User</span>!</p>
+                </div>
+                <button id="logoutBtn" class="btn btn-outline">
+                    <span>🚪</span>
+                    Logout
+                </button>
+            </div>
         </header>
 
         <main>
-            <!-- API Test Section -->
-            <section class="section">
-                <div class="section-header">
-                    <h2>🧪 API Connection Test</h2>
-                </div>
-                <div class="section-content">
-                    <button id="testBtn" class="btn">
-                        <span>🔗</span>
-                        Test Server Connection
-                    </button>
-                    <div id="testResult" class="test-result"></div>
-                </div>
-            </section>
-
             <!-- Notes Section -->
             <section class="section">
                 <div class="section-header">
@@ -67,14 +127,7 @@
                     
                     <div class="form-group">
                         <label class="form-label" for="noteCategory">Category</label>
-                        <select id="noteCategory" class="form-select">
-                            <option value="general">📋 General</option>
-                            <option value="javascript">🟨 JavaScript</option>
-                            <option value="nodejs">🟩 Node.js</option>
-                            <option value="mongodb">🍃 MongoDB</option>
-                            <option value="bug-fix">🐛 Bug Fix</option>
-                            <option value="learning">📚 Learning</option>
-                        </select>
+                        <input type="text" id="noteCategory" class="form-input" placeholder="e.g. JavaScript, React, DevOps, AI, etc.">
                     </div>
                     
                     <label class="checkbox-wrapper">
@@ -125,8 +178,6 @@
             </section>
         </main>
     </div>
-    </div>
-
     <!-- Link to external JavaScript file -->
     <script src="script.js"></script>
 </body>
