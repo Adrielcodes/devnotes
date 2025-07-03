@@ -4,7 +4,7 @@
 // Configuration
 const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
     ? 'http://localhost:3000/api' 
-    : 'https://your-backend-url.railway.app/api'; // Update this with your actual backend URL
+    : 'https://your-backend-url.railway.app/api'; // ⚠️ UPDATE THIS WITH YOUR RAILWAY URL
 
 // ============================================================================
 // GLOBAL STATE
@@ -43,8 +43,63 @@ document.addEventListener('DOMContentLoaded', () => {
     createParticles();
     initLoadingAnimation();
     setupEventListeners();
+    checkBackendConnection();
     console.log('🚀 DevNotes enhanced frontend loaded!');
 });
+
+// ============================================================================
+// BACKEND CONNECTION CHECK
+// ============================================================================
+
+async function checkBackendConnection() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/test`);
+        const data = await response.json();
+        console.log('✅ Backend connected:', data);
+    } catch (error) {
+        console.error('❌ Backend connection failed:', error);
+        showBackendError();
+    }
+}
+
+function showBackendError() {
+    // Create error message
+    const errorDiv = document.createElement('div');
+    errorDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #ff4757;
+        color: white;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10000;
+        max-width: 400px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    `;
+    errorDiv.innerHTML = `
+        <h4 style="margin: 0 0 10px 0;">🚨 Backend Not Connected</h4>
+        <p style="margin: 0 0 10px 0; font-size: 14px;">
+            Your frontend is deployed but the backend isn't connected yet.
+        </p>
+        <p style="margin: 0 0 10px 0; font-size: 14px;">
+            <strong>To fix this:</strong><br>
+            1. Deploy backend to Railway<br>
+            2. Update API_BASE_URL in script.js<br>
+            3. Redeploy frontend
+        </p>
+        <button onclick="this.parentElement.remove()" style="
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        ">Dismiss</button>
+    `;
+    document.body.appendChild(errorDiv);
+}
 
 // ============================================================================
 // EVENT LISTENERS
