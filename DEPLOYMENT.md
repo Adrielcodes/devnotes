@@ -1,8 +1,97 @@
 # DevNotes Deployment Guide
 
-This guide covers deploying the DevNotes application to various environments.
+This guide covers deploying DevNotes to various platforms.
 
-## 🚀 Quick Deployment Options
+## 🚀 Quick Deploy Options
+
+### Option 1: Netlify (Frontend) + Railway (Backend) - Recommended
+
+#### Frontend Deployment (Netlify)
+
+1. **Push your code to GitHub/Bitbucket**
+   ```bash
+   git add .
+   git commit -m "Prepare for Netlify deployment"
+   git push origin main
+   ```
+
+2. **Deploy to Netlify**
+   - Go to [netlify.com](https://netlify.com) and sign up/login
+   - Click "New site from Git"
+   - Connect your repository
+   - Set build settings:
+     - Build command: (leave empty)
+     - Publish directory: `public`
+   - Click "Deploy site"
+
+3. **Update API URL**
+   - After deployment, update the `API_BASE_URL` in `public/script.js` with your backend URL
+
+#### Backend Deployment (Railway)
+
+1. **Deploy to Railway**
+   - Go to [railway.app](https://railway.app) and sign up/login
+   - Click "New Project" → "Deploy from GitHub repo"
+   - Connect your repository
+   - Add environment variables:
+     ```
+     DB_HOST=your-mysql-host
+     DB_USER=your-mysql-user
+     DB_PASSWORD=your-mysql-password
+     DB_NAME=devnotes
+     SESSION_SECRET=your-super-secret-key
+     NODE_ENV=production
+     ALLOWED_ORIGINS=https://your-netlify-app.netlify.app
+     ```
+
+2. **Set up MySQL Database**
+   - Use Railway's MySQL plugin or external service (PlanetScale, AWS RDS, etc.)
+   - Update database environment variables
+
+3. **Update Frontend API URL**
+   - Copy your Railway app URL
+   - Update `API_BASE_URL` in `public/script.js`
+
+### Option 2: Full Stack on Railway
+
+1. **Deploy to Railway**
+   - Go to [railway.app](https://railway.app)
+   - Create new project from GitHub repo
+   - Add MySQL plugin
+   - Set environment variables
+   - Deploy
+
+2. **Configure Domain**
+   - Railway provides a custom domain
+   - Or connect your own domain
+
+### Option 3: Heroku Deployment
+
+1. **Install Heroku CLI**
+   ```bash
+   npm install -g heroku
+   ```
+
+2. **Create Heroku App**
+   ```bash
+   heroku create your-devnotes-app
+   ```
+
+3. **Add MySQL Database**
+   ```bash
+   heroku addons:create jawsdb:kitefin
+   ```
+
+4. **Set Environment Variables**
+   ```bash
+   heroku config:set NODE_ENV=production
+   heroku config:set SESSION_SECRET=your-super-secret-key
+   ```
+
+5. **Deploy**
+   ```bash
+   git push heroku main
+   ```
 
 ### 1. Local Development
 ```bash

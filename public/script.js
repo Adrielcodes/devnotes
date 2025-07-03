@@ -1,4 +1,10 @@
 // DevNotes Frontend JavaScript
+// A modern, secure developer notebook application
+
+// Configuration
+const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+    ? 'http://localhost:3000/api' 
+    : 'https://your-backend-url.railway.app/api'; // Update this with your actual backend URL
 
 // ============================================================================
 // GLOBAL STATE
@@ -139,7 +145,7 @@ function initLoadingAnimation() {
 
 async function checkAuthStatus() {
     try {
-        const response = await fetch('/api/auth/status', {
+        const response = await fetch(`${API_BASE_URL}/auth/status`, {
             credentials: 'include'
         });
         const data = await response.json();
@@ -189,7 +195,7 @@ async function handleLogin(event) {
     const rememberMe = document.getElementById('rememberMe').checked;
     
     try {
-        const response = await fetch('/api/auth/login', {
+        const response = await fetch(`${API_BASE_URL}/auth/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -233,7 +239,7 @@ async function handleRegister(event) {
     }
     
     try {
-        const response = await fetch('/api/auth/register', {
+        const response = await fetch(`${API_BASE_URL}/auth/register`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -265,7 +271,7 @@ async function handleRegister(event) {
 
 async function handleLogout() {
     try {
-        const response = await fetch('/api/auth/logout', {
+        const response = await fetch(`${API_BASE_URL}/auth/logout`, {
             method: 'POST',
             credentials: 'include'
         });
@@ -338,7 +344,7 @@ async function loadNotes() {
     
     console.log('📝 Loading notes...');
     try {
-        const response = await fetch('/api/notes', {
+        const response = await fetch(`${API_BASE_URL}/notes`, {
             credentials: 'include'
         });
         
@@ -384,7 +390,7 @@ async function handleAddNote() {
     addNoteBtn.innerHTML = '<span class="spinner"></span> Saving...';
     
     try {
-        const response = await fetch('/api/notes', {
+        const response = await fetch(`${API_BASE_URL}/notes`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -447,7 +453,7 @@ async function deleteNote(noteId) {
     }
     
     try {
-        const response = await fetch(`/api/notes/${noteId}`, {
+        const response = await fetch(`${API_BASE_URL}/notes/${noteId}`, {
             method: 'DELETE',
             credentials: 'include'
         });

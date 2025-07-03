@@ -39,7 +39,9 @@ initializeApp();
 
 // Middleware
 app.use(cors({
-    origin: process.env.NODE_ENV === 'production' ? false : true,
+    origin: process.env.NODE_ENV === 'production' 
+        ? process.env.ALLOWED_ORIGINS?.split(',') || false 
+        : true,
     credentials: true
 }));
 app.use(express.json());
